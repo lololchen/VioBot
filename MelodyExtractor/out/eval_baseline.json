@@ -1,0 +1,198 @@
+{
+  "aggregate": {
+    "determinism_all_equal": true,
+    "mean_onset_f1": 1.0,
+    "mean_onset_offset_pitch_f1": 1.0,
+    "mean_onset_pitch_f1": 1.0,
+    "mean_overall_accuracy": 0.9636076996009084,
+    "mean_raw_chroma_accuracy": 0.9897959183673469,
+    "mean_raw_pitch_accuracy": 0.9897959183673469,
+    "mean_voicing_false_alarm": 0.5983606557377049,
+    "mean_voicing_recall": 0.9987244897959184,
+    "mono_fixture_count": 2,
+    "reducer_violation_total": 0
+  },
+  "fixtures": {
+    "mono_arpeggio": {
+      "determinism": {
+        "equal": true,
+        "sha256_run1": "88fe67180b1012395172b309987391af60b4640454cb449a04c6f8a61e540b23",
+        "sha256_run2": "88fe67180b1012395172b309987391af60b4640454cb449a04c6f8a61e540b23"
+      },
+      "melody": {
+        "overall_accuracy": 0.9648093841642229,
+        "raw_chroma_accuracy": 1.0,
+        "raw_pitch_accuracy": 1.0,
+        "voicing_false_alarm": 0.19672131147540983,
+        "voicing_recall": 1.0
+      },
+      "monophonic": true,
+      "reducer": {
+        "1": {
+          "melody_retention": 1.0,
+          "notes_after": 7,
+          "notes_before": 7,
+          "top_voice_notes": 7,
+          "top_voice_notes_survived": 7,
+          "violation_count": 0,
+          "violations": []
+        },
+        "2": {
+          "melody_retention": 1.0,
+          "notes_after": 7,
+          "notes_before": 7,
+          "top_voice_notes": 7,
+          "top_voice_notes_survived": 7,
+          "violation_count": 0,
+          "violations": []
+        },
+        "3": {
+          "melody_retention": 1.0,
+          "notes_after": 7,
+          "notes_before": 7,
+          "top_voice_notes": 7,
+          "top_voice_notes_survived": 7,
+          "violation_count": 0,
+          "violations": []
+        }
+      },
+      "transcription": {
+        "onset_f1": 1.0,
+        "onset_offset_pitch_f1": 1.0,
+        "onset_pitch_f1": 1.0
+      }
+    },
+    "mono_scale": {
+      "determinism": {
+        "equal": true,
+        "sha256_run1": "1c9df48dfd41f043ed972f7f2d2ccb2f907cf53134998e81b39840661f5b9e65",
+        "sha256_run2": "1c9df48dfd41f043ed972f7f2d2ccb2f907cf53134998e81b39840661f5b9e65"
+      },
+      "melody": {
+        "overall_accuracy": 0.9624060150375939,
+        "raw_chroma_accuracy": 0.9795918367346939,
+        "raw_pitch_accuracy": 0.9795918367346939,
+        "voicing_false_alarm": 1.0,
+        "voicing_recall": 0.9974489795918368
+      },
+      "monophonic": true,
+      "reducer": {
+        "1": {
+          "melody_retention": 1.0,
+          "notes_after": 8,
+          "notes_before": 8,
+          "top_voice_notes": 8,
+          "top_voice_notes_survived": 8,
+          "violation_count": 0,
+          "violations": []
+        },
+        "2": {
+          "melody_retention": 1.0,
+          "notes_after": 8,
+          "notes_before": 8,
+          "top_voice_notes": 8,
+          "top_voice_notes_survived": 8,
+          "violation_count": 0,
+          "violations": []
+        },
+        "3": {
+          "melody_retention": 1.0,
+          "notes_after": 8,
+          "notes_before": 8,
+          "top_voice_notes": 8,
+          "top_voice_notes_survived": 8,
+          "violation_count": 0,
+          "violations": []
+        }
+      },
+      "transcription": {
+        "onset_f1": 1.0,
+        "onset_offset_pitch_f1": 1.0,
+        "onset_pitch_f1": 1.0
+      }
+    },
+    "triple_rolled": {
+      "determinism": {
+        "equal": true,
+        "sha256_run1": "da457ec345834f46f6b988f8cdc6aabace5728ddd83eeabe124f96b2965c042b",
+        "sha256_run2": "da457ec345834f46f6b988f8cdc6aabace5728ddd83eeabe124f96b2965c042b"
+      },
+      "monophonic": false,
+      "reducer": {
+        "1": {
+          "melody_retention": 1.0,
+          "notes_after": 3,
+          "notes_before": 5,
+          "top_voice_notes": 3,
+          "top_voice_notes_survived": 3,
+          "violation_count": 0,
+          "violations": []
+        },
+        "2": {
+          "melody_retention": 1.0,
+          "notes_after": 4,
+          "notes_before": 5,
+          "top_voice_notes": 3,
+          "top_voice_notes_survived": 3,
+          "violation_count": 0,
+          "violations": []
+        },
+        "3": {
+          "melody_retention": 1.0,
+          "notes_after": 5,
+          "notes_before": 5,
+          "top_voice_notes": 3,
+          "top_voice_notes_survived": 3,
+          "violation_count": 0,
+          "violations": []
+        }
+      }
+    },
+    "two_voice_thirds": {
+      "determinism": {
+        "equal": true,
+        "sha256_run1": "cf72fa1abe5f70cd57b1b91f14613cfb4efeb5389cb1a92c07fa73f2adee7cac",
+        "sha256_run2": "cf72fa1abe5f70cd57b1b91f14613cfb4efeb5389cb1a92c07fa73f2adee7cac"
+      },
+      "monophonic": false,
+      "reducer": {
+        "1": {
+          "melody_retention": 1.0,
+          "notes_after": 3,
+          "notes_before": 6,
+          "top_voice_notes": 3,
+          "top_voice_notes_survived": 3,
+          "violation_count": 0,
+          "violations": []
+        },
+        "2": {
+          "melody_retention": 1.0,
+          "notes_after": 6,
+          "notes_before": 6,
+          "top_voice_notes": 3,
+          "top_voice_notes_survived": 3,
+          "violation_count": 0,
+          "violations": []
+        },
+        "3": {
+          "melody_retention": 1.0,
+          "notes_after": 6,
+          "notes_before": 6,
+          "top_voice_notes": 3,
+          "top_voice_notes_survived": 3,
+          "violation_count": 0,
+          "violations": []
+        }
+      }
+    }
+  },
+  "meta": {
+    "fixture_names": [
+      "mono_arpeggio",
+      "mono_scale",
+      "triple_rolled",
+      "two_voice_thirds"
+    ],
+    "fixtures_dir": "fixtures"
+  }
+}

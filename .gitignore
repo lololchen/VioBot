@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+
+# Generated pipeline outputs (paired listening WAVs, eval reports, GUI exports)
+# — except the decision-governed regression baseline, which is versioned (D-015/D-016).
+MelodyExtractor/out/*
+!MelodyExtractor/out/eval_baseline.json
+
+# Copyrighted reference papers stay local-only (D-020) — repo may be public.
+docs/*.pdf
+
+# Claude Code local state
+.claude/scheduled_tasks.lock
+.claude/settings.local.json
+
+# OS noise
+Thumbs.db
+.DS_Store

@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "melody-extractor"
+version = "0.1.0"
+description = "Perception front-end of the violin robot: music -> hardware-agnostic NoteSequence -> playability-reduced voices -> audio preview"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "soundfile>=0.12",
+    "mido>=1.3",
+    "pretty_midi>=0.2.10",
+    "mir_eval>=0.7",
+]
+
+[project.optional-dependencies]
+# Keep heavy deps out of core: core must stay importable without them (repo rule).
+ffmpeg = ["imageio-ffmpeg>=0.4.9"]          # bundled static ffmpeg when none on PATH
+mono-dnn = ["crepe>=0.0.13"]                # CREPE pulls TensorFlow
+poly = ["basic-pitch>=0.3.0"]               # pulls TensorFlow
+timbre-essentia = ["essentia"]              # no Windows wheels; numpy backend is the default
+render-fluidsynth = ["pyfluidsynth>=1.3"]   # needs FluidSynth DLL + a violin SoundFont
+gui = ["streamlit>=1.37", "plotly>=5.22"]   # parameter-tuning/inspection GUI (melody-extractor-gui)
+url = ["yt-dlp>=2025.1.15"]                 # URL audio input (floor only: extractors must stay updatable)
+dev = ["pytest>=7"]
+
+[project.scripts]
+melody-extractor = "melody_extractor.cli:main"
+melody-extractor-gui = "melody_extractor.gui.launch:main"
+
+[tool.setuptools.packages.find]
+include = ["melody_extractor*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: exercises a full Streamlit AppTest run (transcription + reduction over a fixture); not run by default in tight loops.",
+    "network: performs a real network download (yt-dlp); skipped unless MELODY_EXTRACTOR_NETWORK_TESTS=1.",
+]

@@ -1,0 +1,16 @@
+{
+    // Use the in-project venv (created by run_gui.bat / documented in repo).
+    // The Python extension's "Run Python File" play button runs the current
+    // file with this interpreter; app.py relaunches itself under
+    // `streamlit run` when executed bare, so the play button starts the GUI.
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "python.terminal.activateEnvironment": true,
+
+    // If the Code Runner extension provides the "Run Code" button instead,
+    // route it through the same venv interpreter ($pythonPath comes from the
+    // Python extension's selected interpreter above). PowerShell call
+    // operator + quotes handle the spaces in this repo's path.
+    "code-runner.executorMap": {
+        "python": "& \"$pythonPath\" -u \"$fullFileName\""
+    }
+}

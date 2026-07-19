@@ -1,0 +1,11 @@
+# Normalize text files to LF in the repo.
+* text=auto
+
+# cmd misparses LF batch files — run_gui.bat must stay CRLF (see its header comment).
+*.bat text eol=crlf
+
+# Audio/MIDI fixtures must stay byte-identical (determinism is load-bearing here).
+*.wav binary
+*.mid binary
+*.sf2 binary
+*.pdf binary
