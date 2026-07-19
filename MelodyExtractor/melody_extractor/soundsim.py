@@ -55,6 +55,9 @@ class RenderConfig:
     n_partials: int = 8
     fade_s: float = 0.005
     soundfont_path: "str | None" = None
+    # GM program for the fluidsynth backend (0-based; 40 = violin). Ignored by
+    # "additive". Meaningful values depend on the loaded SoundFont's bank 0.
+    midi_program: int = 40
 
 
 def render(seq: NoteSequence, out_wav: "str | Path", config: RenderConfig = RenderConfig()) -> Path:
@@ -294,7 +297,8 @@ def _render_fluidsynth(seq: NoteSequence, config: RenderConfig) -> np.ndarray:
     synth = fluidsynth.Synth(samplerate=float(sr))
     try:
         sfid = synth.sfload(str(soundfont_path))
-        synth.program_select(0, sfid, 0, 40)  # channel 0, bank 0, GM preset 40 = violin
+        # channel 0, bank 0, config.midi_program (GM: 40 = violin default)
+        synth.program_select(0, sfid, 0, int(config.midi_program))
 
         events = []
         for note in seq.notes:

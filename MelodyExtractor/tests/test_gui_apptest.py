@@ -84,6 +84,72 @@ def test_reducer_stage_radio_tweak_reruns_without_exception():
     assert not at.exception, [str(e) for e in at.exception]
 
 
+def _stage_caption(at: AppTest) -> str:
+    caps = [c.value for c in at.caption if "meta.stage.max_voices" in c.value]
+    assert len(caps) == 1, caps
+    return caps[0]
+
+
+@pytest.mark.slow
+def test_sidebar_max_voices_slider_drives_reducer():
+    """Regression: the sidebar StageConfig.max_voices slider must actually
+    reach the reducer. The stage radio is keyed, and a keyed radio ignores
+    `index` after its first render -- before the re-seed fix the slider was
+    dead (changing it 1->2 changed nothing anywhere)."""
+    at = _run_with_fixture()
+    assert "meta.stage.max_voices = 1" in _stage_caption(at)
+
+    at.sidebar.slider(key="cfgw_stage_max_voices").set_value(2)
+    at.run()
+    assert not at.exception, [str(e) for e in at.exception]
+    assert not at.warning, [w.value for w in at.warning]  # e.g. session-state API warnings
+    assert at.radio(key="reducer_stage_radio").value == 2
+    assert "meta.stage.max_voices = 2" in _stage_caption(at)
+
+    # Radio still overrides per-preview while the slider is untouched...
+    at.radio(key="reducer_stage_radio").set_value(3)
+    at.run()
+    assert not at.exception, [str(e) for e in at.exception]
+    assert "meta.stage.max_voices = 3" in _stage_caption(at)
+
+    # ...and the next slider change re-seeds (wins over) the radio override.
+    at.sidebar.slider(key="cfgw_stage_max_voices").set_value(1)
+    at.run()
+    assert not at.exception, [str(e) for e in at.exception]
+    assert at.radio(key="reducer_stage_radio").value == 1
+    assert "meta.stage.max_voices = 1" in _stage_caption(at)
+
+
+@pytest.mark.slow
+def test_midi_fixture_two_voices_end_to_end():
+    """two_voice_thirds.mid (real polyphony, no [poly] extra needed) through
+    the full pipeline at max_voices=2: both voices survive, no playability
+    violations, no all-notes-dropped warning."""
+    at = _run_with_fixture("two_voice_thirds.mid")
+
+    at.sidebar.slider(key="cfgw_stage_max_voices").set_value(2)
+    at.run()
+    assert not at.exception, [str(e) for e in at.exception]
+    assert "meta.stage.max_voices = 2" in _stage_caption(at)
+    assert any("No playability violations" in s.value for s in at.success)
+    assert not any("dropped ALL" in w.value for w in at.warning)
+
+
+@pytest.mark.slow
+def test_poly_wav_on_mono_transcriber_explains_itself():
+    """two_voice_thirds.wav through the mono transcriber: YIN locks onto each
+    dyad's common fundamental (~C3, below open G3), so the reducer correctly
+    drops everything. The GUI must SAY both things instead of silently
+    rendering silence (the 'no reduced results' user report)."""
+    at = _run_with_fixture("two_voice_thirds.wav")
+
+    at.sidebar.slider(key="cfgw_stage_max_voices").set_value(2)
+    at.run()
+    assert not at.exception, [str(e) for e in at.exception]
+    assert any("monophonic" in i.value for i in at.info)
+    assert any("dropped ALL" in w.value for w in at.warning)
+
+
 @pytest.mark.slow
 def test_url_fetch_path_feeds_pipeline(monkeypatch):
     """The URL input path (D-017) with the network layer stubbed out:

@@ -115,7 +115,7 @@ def reduce(digest: str, mono_cfg: MonoConfig, timbre_cfg: TimbreConfig, stage_cf
     return reducer.reduce(seq, stage_cfg)
 
 
-@st.cache_data(show_spinner="Rendering audio (soundsim)...", max_entries=8)
+@st.cache_data(show_spinner="Rendering audio (soundsim)...", max_entries=12)  # one A/B view = 4 entries (2 backends x pre/post reduction)
 def render(digest: str, mono_cfg: MonoConfig, timbre_cfg: TimbreConfig, render_cfg: RenderConfig,
            stage_cfg: "Optional[StageConfig]" = None) -> bytes:
     """WAV bytes (via audio_bytes.wav_bytes, D-013) of either the pre-reduction

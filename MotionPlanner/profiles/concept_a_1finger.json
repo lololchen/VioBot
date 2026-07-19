@@ -1,0 +1,118 @@
+{
+  "bow": {
+    "belt": {
+      "a_max_mps2": 4.0,
+      "v_max_mps": 1.0
+    },
+    "beta_actuated": false,
+    "beta_default": 0.1,
+    "beta_range": [
+      0.05,
+      0.25
+    ],
+    "force": {
+      "df_dt_max_nps": 50.0,
+      "f_max_n": 2.5
+    },
+    "guettler": {
+      "t_attack_min_s": 0.015
+    },
+    "incl": {
+      "a_max_radps2": 80.0,
+      "range_rad": 0.7,
+      "v_max_radps": 6.0
+    },
+    "r_contact_m": 0.03,
+    "schelleng": {
+      "a0_db": -28.0,
+      "k_max": 2.0,
+      "k_min": 0.06,
+      "v_b_min_mps": 0.02
+    },
+    "tilt": null,
+    "y": {
+      "a_max_mps2": 4.0,
+      "travel_m": 0.02,
+      "v_max_mps": 0.2
+    }
+  },
+  "comment": "Concept A proof-of-concept: one roaming 3-DoF finger (four-bar XY + lead-screw Z).",
+  "fingerboard": {
+    "max_position_st": 19.0
+  },
+  "fingers": [
+    {
+      "device_ids": {
+        "press": 6,
+        "x": 5,
+        "z": 7
+      },
+      "motor": {
+        "driver": "DRV8313",
+        "encoder": "AS5048A-14",
+        "kv": 2400,
+        "type": "1503"
+      },
+      "press": {
+        "bandwidth_hz": 15.0,
+        "f_max_n": 4.0,
+        "t_lift_s": 0.025,
+        "t_press_s": 0.03
+      },
+      "x": {
+        "a_max_mps2": 20.0,
+        "bandwidth_hz": 12.0,
+        "range_m": 0.05,
+        "v_max_mps": 0.5
+      },
+      "z": {
+        "a_max_mps2": 25.0,
+        "bandwidth_hz": 12.0,
+        "range_m": 0.28,
+        "v_max_mps": 0.6
+      }
+    }
+  ],
+  "name": "concept_a_1finger",
+  "profile_schema_version": "1",
+  "strings": {
+    "band_angles_rad": [
+      -0.3,
+      -0.2,
+      -0.1,
+      0.0,
+      0.1,
+      0.2,
+      0.3
+    ],
+    "band_halfwidth_rad": 0.03,
+    "impedance_z": [
+      0.55,
+      0.4,
+      0.3,
+      0.25
+    ],
+    "open_hz": [
+      195.99771799087463,
+      293.6647679174076,
+      440.0,
+      659.2551138257398
+    ],
+    "scale_length_mm": 325.0,
+    "spacing_bridge_mm": 11.5,
+    "spacing_nut_mm": 5.5
+  },
+  "timing": {
+    "command_latency_s": 0.02,
+    "control_hop_s": 0.01
+  },
+  "topology": {
+    "concept": "A",
+    "finger_home_string": [
+      null
+    ],
+    "fingers_can_cross": false,
+    "min_finger_separation_mm": 25.0,
+    "n_fingers": 1
+  }
+}

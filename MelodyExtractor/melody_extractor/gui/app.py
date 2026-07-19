@@ -37,9 +37,17 @@ def main() -> None:
     st.title("MelodyExtractor — Pipeline Inspector")
 
     st.sidebar.header("Input")
-    fixture_names = sorted(p.name for p in FIXTURES_DIR.glob("*.wav")) if FIXTURES_DIR.is_dir() else []
+    # .mid fixtures are listed alongside .wav: the MIDI ground truth is the
+    # only in-repo input with REAL polyphony (the mono transcriber cannot
+    # produce concurrent notes from a .wav), so it is what makes the stage-2/3
+    # reducer path exercisable end-to-end without the [poly] extra.
+    fixture_names = sorted(
+        p.name for p in FIXTURES_DIR.iterdir()
+        if p.suffix.lower() in (AUDIO_EXTENSIONS | MIDI_EXTENSIONS)
+    ) if FIXTURES_DIR.is_dir() else []
     fixture_choice = st.sidebar.selectbox(
-        "Fixture (tests/fixtures/*.wav)", ["(none)"] + fixture_names, key="input_fixture_select",
+        "Fixture (tests/fixtures: .wav audio / .mid ground truth)",
+        ["(none)"] + fixture_names, key="input_fixture_select",
     )
 
     upload_types = sorted(ext.lstrip(".") for ext in (AUDIO_EXTENSIONS | MIDI_EXTENSIONS))

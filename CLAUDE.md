@@ -5,17 +5,18 @@ A robot that listens to arbitrary music and replays it on a real violin.
 ## Module map
 | Module | Role | Status |
 |---|---|---|
-| `MelodyExtractor/` | Audio/MIDI → note sequence + timbre features + playability reduction + sound sim | **Active — build first** |
-| `MotionPlanner/` (a.k.a. Sound2Motion) | Note sequence → fingering, bow speed/pressure/position, vibrato; owns SysID mapper | Planned |
-| `AudioFeedback/` | Closed-loop listening during play | Planned |
+| `MelodyExtractor/` | Audio/MIDI → note sequence + timbre features + playability reduction + sound sim | **Active** |
+| `MotionPlanner/` (a.k.a. Sound2Motion) | NoteSequence → MotionScore: fingering, bow speed/pressure/inclination, vibrato; forward sim + topology comparison; owns SysID mapper + firmware bridge | **Active** |
+| `AudioFeedback/` | Closed-loop listening during play | Concept — `docs/CONCEPT_AudioFeedback.md` |
 | `Firmware/` | Motor control — see https://github.com/AachenBQ/Motor_Architecture | External repo |
 
 ## Ground rules
-- **Read `docs/PRD_MelodyExtractor.md` before touching MelodyExtractor.** It encodes decisions already debated; don't silently re-litigate them.
+- **Read `docs/PRD_MelodyExtractor.md` before touching MelodyExtractor, and `docs/PRD_MotionPlanner.md` before touching MotionPlanner.** They encode decisions already debated; don't silently re-litigate them.
 - **Log every architectural decision in `docs/decisions.md`** (append-only, dated, with alternatives considered). If you change an approach, add a new entry superseding the old one — never rewrite history.
-- Module boundary discipline: MelodyExtractor outputs hardware-agnostic acoustics (`NoteSequence` JSON schema). Anything about fingers, bows, or motors belongs in MotionPlanner. Reject scope creep in both directions.
+- Module boundary discipline: MelodyExtractor outputs hardware-agnostic acoustics (`NoteSequence` JSON schema). Anything about fingers, bows, or motors belongs in MotionPlanner (`MotionScore` JSON schema); motor-protocol specifics stay in its `firmware_bridge/`. Closed-loop listening is AudioFeedback's. Reject scope creep in all directions. Dependency direction: `motion_planner` imports `melody_extractor`, never the reverse (D-022).
 - Determinism matters: same input file ⇒ byte-identical output (fix seeds, pin model versions). The robot is debugged against these outputs.
-- Hardware stage gates (from PRD): mono → 2-note adjacent-string double stops → 3-note rolled → 4-finger/2-bow. Only `reducer` config changes per stage.
+- Hardware stage gates (from PRD): mono → 2-note adjacent-string double stops → 3-note rolled → 4-finger/2-bow. Only `reducer` config (MelodyExtractor) and `HardwareProfile`/`PlannerConfig` (MotionPlanner) change per stage.
+- GUIs: `run_gui.bat` opens one browser window with all module tabs via `gui_hub/` (port registry + workspace manifest); each module's GUI also runs standalone (D-030, once built).
 
 ## Environment
 - Python ≥3.10, `uv` or `pip` with `requirements.txt`; ffmpeg required on PATH.

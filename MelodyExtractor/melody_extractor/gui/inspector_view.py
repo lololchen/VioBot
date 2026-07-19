@@ -29,11 +29,11 @@ import streamlit as st
 from .. import reducer, soundsim
 from ..input_adapter import AudioBuffer
 from ..reducer import StageConfig
-from ..schema import NoteSequence
+from ..schema import NoteSequence, hz_to_midi
 from ..soundsim import RenderConfig
 from ..timbre import TimbreConfig
 from ..transcriber import MonoConfig
-from . import figures, pipeline_cache, style
+from . import figures, params, pipeline_cache, style
 
 _OUT_DIR = Path(__file__).resolve().parents[2] / "out" / "gui_paired_export"
 
@@ -211,15 +211,57 @@ def render(digest: "str | None", mono_cfg: MonoConfig, timbre_cfg: TimbreConfig,
     # -----------------------------------------------------------------
     t0 = time.perf_counter()
     with _step_start(5, "Reducer — reducer.reduce") as status:
-        default_index = stage_cfg.max_voices - 1 if stage_cfg.max_voices in (1, 2, 3) else 0
+        # Sidebar StageConfig.max_voices is the config value; this radio is a
+        # per-preview override (like the CLI's --stage flag). A keyed radio
+        # ignores `index` once its key exists in session_state, so the radio is
+        # re-seeded whenever the SIDEBAR value changes -- without this the
+        # sidebar max_voices slider is dead after the first render (changing
+        # it 1->2 changed nothing anywhere in the pipeline).
+        sidebar_stage = stage_cfg.max_voices if stage_cfg.max_voices in (1, 2, 3) else 1
+        if st.session_state.get("_reducer_sidebar_stage_seen") != sidebar_stage:
+            st.session_state["reducer_stage_radio"] = sidebar_stage
+        st.session_state["_reducer_sidebar_stage_seen"] = sidebar_stage
         stage_n = st.radio(
-            "Hardware stage to preview (overrides StageConfig.max_voices, like the CLI's --stage)",
-            [1, 2, 3], index=default_index, horizontal=True, key="reducer_stage_radio",
+            "Hardware stage to preview (follows StageConfig.max_voices; click to "
+            "override for this preview, like the CLI's --stage)",
+            [1, 2, 3], horizontal=True, key="reducer_stage_radio",
         )
         effective_stage_cfg = replace(stage_cfg, max_voices=stage_n)
 
+        # Stage >= 2 is meaningless on a monophonic transcription: there is
+        # never a second concurrent note to keep. Say so instead of letting
+        # the user hunt for a reducer bug (the transcriber, not the reducer,
+        # is what caps the voice count on audio input).
+        transcriber_tag = seq_timbre.meta.backends.get("transcriber", "")
+        if not is_midi and stage_n >= 2 and transcriber_tag.split("-")[0] in ("yin", "crepe"):
+            st.info(
+                f"The active transcriber ('{transcriber_tag}') is monophonic: it never "
+                "emits two concurrent notes, so stages ≥ 2 cannot add voices here — and "
+                "on polyphonic audio it often tracks the chord's combination tone rather "
+                "than either real voice. To exercise 2/3-voice reduction end-to-end, pick "
+                "a .mid fixture (e.g. two_voice_thirds.mid) in the sidebar, or install "
+                "the [poly] extra (basic-pitch)."
+            )
+
         reduced_seq = pipeline_cache.reduce(digest, mono_cfg, timbre_cfg, effective_stage_cfg)
         diff = figures.diff_reduction(seq_timbre, reduced_seq)
+        if seq_timbre.notes and not reduced_seq.notes:
+            tol = effective_stage_cfg.pitch_tolerance_semitones
+            lo_st = hz_to_midi(effective_stage_cfg.open_strings_hz[0]) - tol
+            hi_st = hz_to_midi(effective_stage_cfg.max_pitch_hz) + tol
+            out_of_range = sum(
+                1 for note in seq_timbre.sorted().notes
+                if not (lo_st <= hz_to_midi(note.pitch_hz) <= hi_st)
+            )
+            st.warning(
+                f"The reducer dropped ALL {len(seq_timbre.notes)} notes — the reduced "
+                f"renders below will be silent. {out_of_range} of {len(seq_timbre.notes)} "
+                f"notes lie outside the playable range [open G3 … "
+                f"{effective_stage_cfg.max_pitch_hz:.0f} Hz]. A monophonic transcription "
+                "of polyphonic audio typically locks onto the chord's common fundamental "
+                "(an octave or two below the written notes), which lands below open G3 "
+                "and is unplayable at any stage."
+            )
         if not show_charts:
             st.caption(
                 f"kept {len(diff['kept'])} / trimmed {len(diff['trimmed'])} / "
@@ -254,6 +296,27 @@ def render(digest: "str | None", mono_cfg: MonoConfig, timbre_cfg: TimbreConfig,
             f"meta.stage.max_voices = {stage_meta.get('max_voices', '—')}  ·  "
             f"meta.extra.pruned = {pruned}"
         )
+
+        # Workspace handoff (D-030): register the reduced sequence so the
+        # Sound2Motion tab's "workspace latest" input picks it up. Guarded —
+        # a standalone install without the mono-repo's gui_hub just errors
+        # inline instead of breaking the inspector.
+        if st.button("Export reduced JSON to workspace (→ Sound2Motion tab)",
+                     key="reducer_workspace_export"):
+            try:
+                import sys as _sys
+
+                _repo_root = Path(__file__).resolve().parents[3]
+                if str(_repo_root) not in _sys.path:
+                    _sys.path.insert(0, str(_repo_root))
+                from gui_hub import workspace as _workspace
+
+                _path = _workspace.register_text(
+                    "note_sequence", f"melody_export.stage{stage_n}.json",
+                    reduced_seq.to_json(), producer="melody_extractor-gui")
+                st.success(f"Exported to workspace: {_path.name}")
+            except (ImportError, OSError, ValueError) as e:
+                st.error(f"Workspace export failed: {e}")
     _step_done(status, 5, t0)
 
     # -----------------------------------------------------------------
@@ -261,36 +324,56 @@ def render(digest: "str | None", mono_cfg: MonoConfig, timbre_cfg: TimbreConfig,
     # -----------------------------------------------------------------
     t0 = time.perf_counter()
     with _step_start(6, "A/B audio — soundsim.render_to_array / audio_bytes.wav_bytes") as status:
-        # A backend failure here (e.g. fluidsynth DLL/SoundFont problems) must
-        # degrade to an inline error, not kill the whole page with a traceback.
-        extracted_wav = reduced_wav = None
-        try:
-            extracted_wav = pipeline_cache.render(digest, mono_cfg, timbre_cfg, render_cfg, None)
-            reduced_wav = pipeline_cache.render(digest, mono_cfg, timbre_cfg, render_cfg, effective_stage_cfg)
-        except (ImportError, ValueError, FileNotFoundError, RuntimeError) as exc:
-            st.error(f"Render failed ({render_cfg.backend} backend): {exc}")
+        # Two render configs derived from the ONE global sidebar RenderConfig:
+        # the additive baseline (always available, deterministic) plus a
+        # SoundFont (fluidsynth) row playing render_cfg.midi_program. Each
+        # (config, stage) pair is its own pipeline_cache.render entry, so e.g.
+        # switching instruments re-renders only the two SoundFont rows.
+        additive_cfg = replace(render_cfg, backend="additive")
+        soundfont_cfg = replace(render_cfg, backend="fluidsynth")
+        instrument = params.GM_INSTRUMENTS.get(render_cfg.midi_program, f"GM {render_cfg.midi_program}")
 
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.caption("Original")
-            if is_midi:
-                st.caption("(no source recording for MIDI input)")
-            else:
-                from . import audio_bytes as audio_bytes_mod
-                audio = loaded
-                st.audio(audio_bytes_mod.wav_bytes(audio.pcm, audio.sample_rate), format="audio/wav")
-        with col2:
-            st.caption("Extracted render (pre-reduction)")
-            if extracted_wav is not None:
-                st.audio(extracted_wav, format="audio/wav")
-        with col3:
-            st.caption(f"Reduced render (stage {stage_n})")
-            if reduced_wav is not None:
-                st.audio(reduced_wav, format="audio/wav")
+        # A backend failure (e.g. fluidsynth DLL/SoundFont problems) must
+        # degrade to an inline error on ITS rows, not kill the whole page.
+        def _try_render(cfg: RenderConfig, stage: "StageConfig | None"):
+            try:
+                return pipeline_cache.render(digest, mono_cfg, timbre_cfg, cfg, stage), None
+            except (ImportError, ValueError, FileNotFoundError, RuntimeError) as exc:
+                return None, str(exc)
 
+        st.caption("Original")
+        if is_midi:
+            st.caption("(no source recording for MIDI input)")
+        else:
+            from . import audio_bytes as audio_bytes_mod
+            audio = loaded
+            st.audio(audio_bytes_mod.wav_bytes(audio.pcm, audio.sample_rate), format="audio/wav")
+
+        rows = (
+            ("Extracted render (pre-reduction) — additive", additive_cfg, None),
+            (f"Extracted render (pre-reduction) — SoundFont · {instrument}", soundfont_cfg, None),
+            (f"Reduced render (stage {stage_n}) — additive", additive_cfg, effective_stage_cfg),
+            (f"Reduced render (stage {stage_n}) — SoundFont · {instrument}", soundfont_cfg, effective_stage_cfg),
+        )
+        soundfont_error_shown = False
+        for label, cfg, stage in rows:
+            st.caption(label)
+            wav, err = _try_render(cfg, stage)
+            if wav is not None:
+                st.audio(wav, format="audio/wav")
+            elif err is not None:
+                if cfg.backend == "fluidsynth" and soundfont_error_shown:
+                    st.caption("(unavailable — see the SoundFont error above)")
+                else:
+                    st.error(f"Render failed ({cfg.backend} backend): {err}")
+                    soundfont_error_shown = cfg.backend == "fluidsynth"
+
+        # Paired export stays on the additive baseline: it is the deterministic
+        # listening-test contract (module CLAUDE.md), independent of the
+        # SoundFont row's instrument choice.
         if not is_midi and st.button("Export paired WAVs (soundsim.render_paired)", key="export_paired_btn"):
             dest = _OUT_DIR / digest[:12]
-            orig_path, render_path = soundsim.render_paired(loaded, seq_timbre, dest, render_cfg)
+            orig_path, render_path = soundsim.render_paired(loaded, seq_timbre, dest, additive_cfg)
             st.success(f"Wrote {orig_path.name} and {render_path.name}")
             st.caption(str(dest))
     _step_done(status, 6, t0)

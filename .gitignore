@@ -11,9 +11,16 @@ dist/
 venv/
 
 # Generated pipeline outputs (paired listening WAVs, eval reports, GUI exports)
-# — except the decision-governed regression baseline, which is versioned (D-015/D-016).
+# — except the decision-governed regression baselines, which are versioned
+# (D-015/D-016 for MelodyExtractor, D-028 for MotionPlanner).
 MelodyExtractor/out/*
 !MelodyExtractor/out/eval_baseline.json
+MotionPlanner/out/*
+!MotionPlanner/out/compare_baseline.json
+!MotionPlanner/out/compare_baseline.md
+
+# GUI-hub workspace: ephemeral coordination artifacts between module GUIs (D-030)
+workspace/
 
 # Copyrighted reference papers stay local-only (D-020) — repo may be public.
 docs/*.pdf

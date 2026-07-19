@@ -14,6 +14,16 @@ import streamlit as st
 
 _CSS = """
 <style>
+/* Help (`?`) hover explanations: a gray a step brighter than the default dark
+   sidebar (#262730) so the tooltip box stays legible over either the sidebar or
+   the main panel. Targets the tooltip content in current Streamlit and the
+   underlying BaseWeb node as a fallback across minor versions. */
+[data-testid="stTooltipContent"],
+[data-testid="stTooltipContent"] div,
+div[data-baseweb="tooltip"] {
+    background-color: #3a3b47 !important;
+    color: #fafafa !important;
+}
 @media (max-width: 640px) {
     /* wide-layout default padding wastes most of a phone's width */
     [data-testid="stMainBlockContainer"] {

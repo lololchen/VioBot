@@ -1,0 +1,25 @@
+{
+  "registry_schema_version": "1",
+  "apps": {
+    "melody_extractor": {
+      "title": "MelodyExtractor",
+      "port": 8501,
+      "app": "MelodyExtractor/melody_extractor/gui/app.py"
+    },
+    "sound2motion": {
+      "title": "Sound2Motion",
+      "port": 8502,
+      "app": "MotionPlanner/motion_planner/gui/app.py"
+    },
+    "firmware": {
+      "title": "Firmware (coming soon)",
+      "port": 8503,
+      "app": "gui_hub/firmware_app.py"
+    },
+    "audiofeedback": {
+      "title": "AudioFeedback (coming soon)",
+      "port": 8504,
+      "app": "gui_hub/audiofeedback_app.py"
+    }
+  }
+}

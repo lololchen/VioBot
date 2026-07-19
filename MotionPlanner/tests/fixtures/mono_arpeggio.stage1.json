@@ -1,0 +1,171 @@
+{
+ "features": [],
+ "meta": {
+  "backends": {
+   "input_adapter": "midi-0.1.0",
+   "reducer": "hmm-viterbi-0.1.0"
+  },
+  "extra": {},
+  "sample_rate": null,
+  "source": "mono_arpeggio.mid",
+  "source_kind": "midi",
+  "stage": {
+   "max_active": 8,
+   "max_fingerboard_semitones": 19.0,
+   "max_pitch_hz": 2637.0,
+   "max_position_span_semitones": 5.0,
+   "max_voices": 1,
+   "min_keep_s": 0.05,
+   "open_strings_hz": [
+    195.99771799087463,
+    293.6647679174076,
+    440.0,
+    659.2551138257398
+   ],
+   "pitch_tolerance_semitones": 0.3,
+   "reducer_version": "hmm-viterbi-0.1.0",
+   "rolled_triples": true,
+   "w_amp": 1.0,
+   "w_dur": 0.5,
+   "w_frag": 2.0,
+   "w_jump": 0.3,
+   "w_pitch": 1.0
+  }
+ },
+ "notes": [
+  {
+   "amp_db_envelope": {
+    "amp_db": [
+     -17.619047619047613,
+     -17.619047619047613
+    ],
+    "times_s": [
+     0.0,
+     0.4
+    ]
+   },
+   "confidence": 1.0,
+   "duration_s": 0.4,
+   "onset_s": 0.0,
+   "pitch_hz": 195.99771799087463,
+   "rolled": false,
+   "velocity": 90,
+   "voice": 0
+  },
+  {
+   "amp_db_envelope": {
+    "amp_db": [
+     -17.619047619047613,
+     -17.619047619047613
+    ],
+    "times_s": [
+     0.0,
+     0.4
+    ]
+   },
+   "confidence": 1.0,
+   "duration_s": 0.4,
+   "onset_s": 0.5,
+   "pitch_hz": 246.94165062806206,
+   "rolled": false,
+   "velocity": 90,
+   "voice": 0
+  },
+  {
+   "amp_db_envelope": {
+    "amp_db": [
+     -17.619047619047613,
+     -17.619047619047613
+    ],
+    "times_s": [
+     0.0,
+     0.3999999999999999
+    ]
+   },
+   "confidence": 1.0,
+   "duration_s": 0.3999999999999999,
+   "onset_s": 1.0,
+   "pitch_hz": 293.6647679174076,
+   "rolled": false,
+   "velocity": 90,
+   "voice": 0
+  },
+  {
+   "amp_db_envelope": {
+    "amp_db": [
+     -17.619047619047613,
+     -17.619047619047613
+    ],
+    "times_s": [
+     0.0,
+     0.3999999999999999
+    ]
+   },
+   "confidence": 1.0,
+   "duration_s": 0.3999999999999999,
+   "onset_s": 1.5,
+   "pitch_hz": 391.99543598174927,
+   "rolled": false,
+   "velocity": 90,
+   "voice": 0
+  },
+  {
+   "amp_db_envelope": {
+    "amp_db": [
+     -17.619047619047613,
+     -17.619047619047613
+    ],
+    "times_s": [
+     0.0,
+     0.3999999999999999
+    ]
+   },
+   "confidence": 1.0,
+   "duration_s": 0.3999999999999999,
+   "onset_s": 2.0,
+   "pitch_hz": 493.8833012561241,
+   "rolled": false,
+   "velocity": 90,
+   "voice": 0
+  },
+  {
+   "amp_db_envelope": {
+    "amp_db": [
+     -17.619047619047613,
+     -17.619047619047613
+    ],
+    "times_s": [
+     0.0,
+     0.3999999999999999
+    ]
+   },
+   "confidence": 1.0,
+   "duration_s": 0.3999999999999999,
+   "onset_s": 2.5,
+   "pitch_hz": 587.3295358348151,
+   "rolled": false,
+   "velocity": 90,
+   "voice": 0
+  },
+  {
+   "amp_db_envelope": {
+    "amp_db": [
+     -17.619047619047613,
+     -17.619047619047613
+    ],
+    "times_s": [
+     0.0,
+     0.3999999999999999
+    ]
+   },
+   "confidence": 1.0,
+   "duration_s": 0.3999999999999999,
+   "onset_s": 3.0,
+   "pitch_hz": 783.9908719634985,
+   "rolled": false,
+   "velocity": 90,
+   "voice": 0
+  }
+ ],
+ "schema_version": "0.1.0"
+}

@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "motion-planner"
+version = "0.1.0"
+description = "Sound2Motion: NoteSequence -> MotionScore (fingering, bow, vibrato) + forward sim, topology comparison, SysID scaffolding, firmware bridge"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "mir_eval>=0.7",
+    "melody-extractor>=0.1.0",
+]
+
+[project.optional-dependencies]
+# Keep heavy deps out of core: core must stay importable without them (repo rule).
+serial = ["pyserial>=3.5"]                  # real UART transport; MockTransport needs nothing
+gui = ["streamlit>=1.37", "plotly>=5.22"]   # planning inspector / topology dashboard GUI
+dev = ["pytest>=7"]
+
+[project.scripts]
+motion-planner = "motion_planner.cli:main"
+motion-planner-gui = "motion_planner.gui.launch:main"
+
+[tool.setuptools.packages.find]
+include = ["motion_planner*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: exercises a full Streamlit AppTest run; not run by default in tight loops.",
+]
